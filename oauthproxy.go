@@ -630,13 +630,13 @@ func (p *OAuthProxy) Authenticate(rw http.ResponseWriter, req *http.Request) int
 	}
 
 	if p.SetXAuthRequest {
-	  rw.Header().Set("X-Auth-Request-User", session.User)
-    if session.Email != "" {
-   	  rw.Header().Set("X-Auth-Request-Email", session.Email)
-   	}
-   	if p.PassGroups && session.Groups != "" {
-   		rw.Header().Set("X-Auth-Request-Groups", session.Groups)
-   	}
+		rw.Header().Set("X-Auth-Request-User", session.User)
+		if session.Email != "" {
+			rw.Header().Set("X-Auth-Request-Email", session.Email)
+		}
+		if p.PassGroups && session.Groups != "" {
+			rw.Header().Set("X-Auth-Request-Groups", session.Groups)
+		}
 	}
 
 	if p.PassAccessToken && session.AccessToken != "" {

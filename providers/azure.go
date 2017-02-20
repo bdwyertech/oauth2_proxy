@@ -41,7 +41,6 @@ func NewAzureProvider(p *ProviderData) *AzureProvider {
 		p.ApprovalPrompt = "consent"
 	}
 
-
 	return &AzureProvider{ProviderData: p}
 }
 
@@ -61,8 +60,10 @@ func (p *AzureProvider) Configure(tenant string) {
 		p.RedeemURL = &url.URL{
 			Scheme: "https",
 			Host:   "login.microsoftonline.com",
-			Path:   "/" + p.Tenant + "/oauth2/token",
-		}
+			Path:   "/" + p.Tenant + "/oauth2/token"}
+	}
+	if p.ValidateURL == nil || p.ValidateURL.String() == "" {
+		p.ValidateURL = p.ProfileURL
 	}
 }
 
@@ -226,4 +227,8 @@ func (p *AzureProvider) ValidateGroup(s *SessionState) bool {
 		return false
 	}
 	return true
+}
+
+func (p *AzureProvider) ValidateSessionState(s *SessionState) bool {
+	return validateToken(p, s.AccessToken, getAzureHeader(s.AccessToken))
 }
