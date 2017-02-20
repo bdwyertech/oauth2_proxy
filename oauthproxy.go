@@ -59,6 +59,7 @@ type OAuthProxy struct {
 	HtpasswdFile        *HtpasswdFile
 	DisplayHtpasswdForm bool
 	serveMux            http.Handler
+	SetXAuthRequest     bool
 	PassBasicAuth       bool
 	PassGroups          bool
 	FilterGroups        string
@@ -199,6 +200,7 @@ func NewOAuthProxy(opts *Options, validator func(string) bool) *OAuthProxy {
 		redirectURL:        redirectURL,
 		skipAuthRegex:      opts.SkipAuthRegex,
 		compiledRegex:      opts.CompiledRegex,
+		SetXAuthRequest:    opts.SetXAuthRequest,
 		PassBasicAuth:      opts.PassBasicAuth,
 		PassGroups:         opts.PassGroups,
 		FilterGroups:       opts.FilterGroups,
@@ -625,6 +627,16 @@ func (p *OAuthProxy) Authenticate(rw http.ResponseWriter, req *http.Request) int
 		if p.PassGroups && session.Groups != "" {
 			req.Header["X-Forwarded-Groups"] = []string{session.Groups}
 		}
+	}
+
+	if p.SetXAuthRequest {
+	  rw.Header().Set("X-Auth-Request-User", session.User)
+    if session.Email != "" {
+   	  rw.Header().Set("X-Auth-Request-Email", session.Email)
+   	}
+   	if p.PassGroups && session.Groups != "" {
+   		rw.Header().Set("X-Auth-Request-Groups", session.Groups)
+   	}
 	}
 
 	if p.PassAccessToken && session.AccessToken != "" {
